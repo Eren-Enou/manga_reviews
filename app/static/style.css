@@ -1,0 +1,52 @@
+:root {
+    --primary-color: rgb(154, 223, 246); /* define the primary color as red */
+    --secondary-color: #ffffff; /* define the secondary color as white */
+    --tertiary-color: rgb(255, 192, 203); /* define the tertiary color as pink */
+  }
+  
+  body {
+    margin: 0 auto;
+    text-align: center;
+    background-color: var(--primary-color);
+  }
+
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+    background-color: var(--primary-color);
+  }
+  
+  a {
+    display: block;
+    margin-top: 20px;
+    color: var(--secondary-color);
+    border: solid var(--tertiary-color);
+    background-color: var(--tertiary-color); /* use the primary color for links */
+  }
+
+  h1 {
+    color: var(--tertiary-color);
+    font-size: 30px;
+    -webkit-text-stroke: 2px var(--secondary-color); 
+  }
+  
+  h2 {
+    color: var(--secondary-color); /* use the secondary color for headings */
+    font-size: 25px;
+    -webkit-text-stroke: 2px var(--secondary-color);
+  }
+
+  p {
+    color: var(--secondary-color);
+    font-size: 20px;
+    font-weight: bold;
+    -webkit-text-stroke: 1px var(--tertiary-color);
+  }
+  
+  label {
+    color: var(--secondary-color);
+    font-size: 20px;
+    font-weight: bold;
+    -webkit-text-stroke: 1px var(--tertiary-color);
+  }
