@@ -1,19 +1,26 @@
 from app import app, db
-from flask import render_template, redirect, url_for, flash
+from flask import render_template, redirect, request, url_for, flash, Markup
 # from fake_data import posts
 from app.forms import SignUpForm, LoginForm, PostForm, SearchForm
 from app.models import User, Post
 from flask_login import login_user, logout_user, login_required, current_user
 
+import requests
+url = "https://anilist-graphql.p.rapidapi.com/"
+
+headers = {
+    "X-RapidAPI-Key": "87927f4031msh473a290f717da11p189432jsn9b635492ee37",
+    "X-RapidAPI-Host": "anilist-graphql.p.rapidapi.com"
+}
+
 @app.route('/', methods=["GET", "POST"])
 def index():
-    posts = Post.query.all()
     form = SearchForm()
     if form.validate_on_submit():
         search_term = form.search_term.data
         # posts = Post.query.filter(Post.title.ilike(f"%{search_term}%")).all()
-        posts = db.session.execute(db.select(Post).where((Post.title.ilike(f"%{search_term}%")) | (Post.body.ilike(f"%{search_term}%")))).scalars().all()
-    return render_template('index.html', posts=posts, form=form)
+        # posts = db.session.execute(db.select(Post).where((Post.title.ilike(f"%{search_term}%")) | (Post.body.ilike(f"%{search_term}%")))).scalars().all()
+    return render_template('index.html', form=form)
 
 
 @app.route('/signup', methods=["GET", "POST"])
@@ -71,60 +78,130 @@ def logout():
     flash("You have logged out", "info")
     return redirect(url_for('index'))
 
+@app.route("/search")
+def search():
+    return render_template('search.html')
 
-@app.route('/create', methods=["GET", "POST"])
-@login_required
-def create_post():
-    form = PostForm()
-    if form.validate_on_submit():
-        # Get the data from the form
-        title = form.title.data
-        body = form.body.data
-        image_url = form.image_url.data or None
-        # Create an instance of Post with form data AND auth user ID
-        new_post = Post(title=title, body=body, image_url=image_url, user_id=current_user.id)
-        flash(f"{new_post.title} has been created!", "success")
-        return redirect(url_for('index'))
-    return render_template('create.html', form=form)
+@app.route('/mangalist')
+def mangalist():
+    # Get the user input from the request object
+    page = request.args.get('page', 1)
+    per_page = request.args.get('per_page', 10)
+    genre = request.args.get('genre', '')
 
+    if (genre == ''):
+        query = '''
+        query ($page: Int, $perPage: Int) {
+        Page (page: $page, perPage: $perPage) {
+            media (type: MANGA) {
+            id
+            title {
+                romaji
+                english
+            }
+            genres
+            tags {
+              name
+            }
+            averageScore
+            description
+            coverImage {
+                large
+            }
+            }
+        }
+        }
+        '''
+    elif (genre != ''):
+        query = '''
+        query ($page: Int, $perPage: Int, $genre: String) {
+        Page (page: $page, perPage: $perPage) {
+            media (type: MANGA, genre: $genre) {
+            id
+            title {
+                romaji
+                english
+            }
+            genres
+            tags {
+              name
+            }
+            averageScore
+            description
+            coverImage {
+                large
+            }
+            }
+        }
+        }
+        '''
 
-@app.route('/edit/<post_id>', methods=["GET", "POST"])
-@login_required
-def edit_post(post_id):
-    form = PostForm()
-    post_to_edit = Post.query.get_or_404(post_id)
-    # Make sure that the post author is the current user
-    if post_to_edit.author != current_user:
-        flash("You do not have permission to edit this post", "danger")
-        return redirect(url_for('index'))
+    # Define the query as a multi-line string
+    
 
-    # If form submitted, update Post
-    if form.validate_on_submit():
-        # update the post with the form data
-        post_to_edit.title = form.title.data
-        post_to_edit.body = form.body.data
-        post_to_edit.image_url = form.image_url.data
-        # Commit that to the database
-        db.session.commit()
-        flash(f"{post_to_edit.title} has been edited!", "success")
-        return redirect(url_for('index'))
+    # Define our query variables and values that will be used in the query request
+    variables = {
+        'page': int(page),
+        'perPage': int(per_page),
+        'genre': genre
+    }
 
-    # Pre-populate the form with Post To Edit's values
-    form.title.data = post_to_edit.title
-    form.body.data = post_to_edit.body
-    form.image_url.data = post_to_edit.image_url
-    return render_template('edit.html', form=form, post=post_to_edit)
+    
 
+    # Make the HTTP API request
+    response = requests.post(url, headers=headers, json={'query': query, 'variables': variables})
 
-@app.route('/delete/<post_id>')
-@login_required
-def delete_post(post_id):
-    post_to_delete = Post.query.get_or_404(post_id)
-    if post_to_delete.author != current_user:
-        flash("You do not have permission to delete this post", "danger")
-        return redirect(url_for('index'))
+    # If the response status code is not 200, raise an exception
+    if response.status_code != 200:
+        raise Exception('API response: {}'.format(response.status_code))
 
-    db.session.delete(post_to_delete)
-    db.session.commit()
-    flash(f"{post_to_delete.title} has been deleted", "info")
-    return redirect(url_for('index'))
+    # Get the JSON response from the API
+    data = response.json()
+
+    # Extract media results from response
+    media = data['data']['Page']['media']
+
+    # Convert HTML strings to escaped Markup objects
+    for m in media:
+        m['description'] = Markup(m['description'])
+
+    # Render reviews template with media data
+    return render_template('mangalist.html', media=media)
+
+@app.route('/mangapage', methods=["GET"])
+def reviews():
+
+    media_id = request.args.get('media_id')
+
+    query = '''
+        query ($review_id:Int, $media_id:Int, $user_id:Int) {
+            Review(id:$review_id,mediaId:$media_id,userId:$user_id,mediaType:MANGA){
+    			id
+  				user{
+                    name
+                    avatar{
+                        large
+                    }
+                }
+    			mediaId
+    			summary
+    			score
+    			body
+            }
+        }
+    '''
+
+    variables = {
+        'media_id': media_id
+    }
+
+    response = requests.post(url, headers=headers, json={'query': query, 'variables': variables})
+    
+    data = response.json()
+    # Extract media and reviews from response
+    review = data['data']['Review']
+    user = review
+    user_avatar = review['user']['avatar']['large']
+    media_id = review['mediaId']
+    summary = review['summary']
+    return render_template('mangapage.html', review=review, user=user, user_avatar=user_avatar, media_id=media_id, summary=summary)

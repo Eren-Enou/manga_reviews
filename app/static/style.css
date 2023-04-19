@@ -50,3 +50,24 @@
     font-weight: bold;
     -webkit-text-stroke: 1px var(--tertiary-color);
   }
+
+  .navbar {
+    color: var(--primary-color);
+    background-color: var(--primary-color);
+  }
+
+  .container-fluid {
+    color: var(--primary-color);
+    background-color: var(--primary-color);
+  }
+
+  
+  .navbar-toggler {
+    color: var(--tertiary-color);
+    background-color: var(--tertiary-color);
+  }
+
+  .navbar-toggler-icon {
+    color: var(--tertiary-color);
+    background-color: var(--secondary-color);
+  }

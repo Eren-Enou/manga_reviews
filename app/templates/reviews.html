@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block title %}Reviews{% endblock %}
+
+{% block header %}
+    <h1>Reviews</h1>
+{% endblock %}
+
+{% block content %}
+    {% for manga in media %}
+        <div>
+            <h2>{{ manga['title']['romaji'] }}</h2>
+            <img src="{{ manga['coverImage']['large'] }}" alt="{{ manga['title']['english'] }}">
+            <p>{{ manga['genres'] }}</p>
+            <p>{{ manga['description'] }}</p>
+        </div>
+    {% endfor %}
+{% endblock %}

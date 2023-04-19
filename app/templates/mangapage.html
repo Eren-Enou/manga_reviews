@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block title %}Manga Page{% endblock %}
+
+{% block header %}
+    <h1>Manga Page</h1>
+{% endblock %}
+
+{% block content %}
+        <div>
+            <h2>{{ manga }}</h2>
+            <h3>{{ user }}</h3>
+            <h3>{{ mediaId }}</h3>
+            <h3>{{ summary }}</h3>
+            <h4>{{ review['score'] }} / 100</h4>
+            <br>
+            <p>{{ review['body'] }}</p>
+        </div>
+        
+{% endblock %}  
