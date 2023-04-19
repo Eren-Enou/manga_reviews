@@ -1,5 +1,5 @@
 from app import app, db
-from flask import render_template, redirect, request, url_for, flash, Markup
+from flask import Response, render_template, redirect, request, url_for, flash, Markup
 # from fake_data import posts
 from app.forms import SignUpForm, LoginForm, PostForm, SearchForm
 from app.models import User, Post
@@ -200,8 +200,62 @@ def reviews():
     data = response.json()
     # Extract media and reviews from response
     review = data['data']['Review']
-    user = review
-    user_avatar = review['user']['avatar']['large']
-    media_id = review['mediaId']
-    summary = review['summary']
-    return render_template('mangapage.html', review=review, user=user, user_avatar=user_avatar, media_id=media_id, summary=summary)
+    
+    return render_template('mangapage.html', review=review)
+
+@app.route('/test', methods=["GET"])
+def test():
+
+
+    media_id = request.args.get('media_id')
+
+    query = '''
+    query ($media_id:Int) {
+    Page {
+        media (id: $media_id, type: MANGA) {
+        id
+        title {
+            romaji
+            english
+        }
+        genres
+        tags {
+            name
+        }
+        averageScore
+        description
+        coverImage {
+            large
+        }
+        reviews {
+            id
+            summary
+            score
+            user {
+            name
+            avatar {
+                large
+            }
+            }
+        }
+        }
+    }
+    }
+    '''
+
+    variables = {
+        'media_id': media_id
+    }
+
+
+
+    response = requests.post(url, headers=headers, json={'query': query, 'variables': variables})
+    
+    # If the response status code is not 200, raise an exception
+    if response.status_code != 200:
+        raise Exception('API response: {}'.format(response.status_code))
+    
+    data = response.json()
+    media = data['data']['Page']['media']
+    reviews = media['reviews']
+    return render_template('test.html', media=media)
