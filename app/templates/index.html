@@ -23,14 +23,17 @@
         <div class="col-12 col-lg-4 order-0 order-lg-1">
             <div class="position-sticky top-0">
                 <div class="card mt-3">
-                    <div class="card-header">Search</div>
+                    <div class="card-header">
+                        Search
+                    </div>
                     <div class="card-body">
                         <form action="{{ url_for('search_results') }}" method="GET">
                             <label for="search">Search:</label>
                             <input type="text" name="search">
                             <button type="submit">Submit</button>
-                          </form>                          
+                        </form>                          
+                    </div>
                 </div>
             </div>
-    </div>
+        </div>
 {% endblock %}  

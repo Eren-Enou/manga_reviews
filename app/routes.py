@@ -401,27 +401,31 @@ def search_results():
     search_term = request.args.get('search')
     url = 'https://graphql.anilist.co'
     query = '''
-        query ($search: String) {
-            Media(search: $search, type: MANGA) {
-                id
-                title {
-                    romaji
-                    english
-                }
-                genres
-                tags {
-                    name
-                }
-                averageScore
-                description(asHtml:true)
-                coverImage {
-                    large
-                }
-            }
-        }
+         query ($page: Int, $perPage: Int, $search: String) {
+  Page(page: $page, perPage: $perPage) {
+    pageInfo {
+      total
+      perPage
+    }
+    media(search: $search, type: MANGA, sort: FAVOURITES_DESC) {
+      id
+      title {
+        romaji
+        english
+        native
+      }
+      type
+      genres
+    }
+  }
+}   
     '''
-    variables = {'search': search_term}
+    variables = {
+        'search': search_term,
+        'page': 1,
+        'perPage': 5,
+        }
     response = requests.post(url, json={'query': query, 'variables': variables})
-    data = response.json()['data']['Media']
+    data = response.json()['data']['Page']['media']
     return render_template('search_results.html', results=data)
 
