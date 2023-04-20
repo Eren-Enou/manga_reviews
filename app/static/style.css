@@ -3,20 +3,30 @@
     --secondary-color: #ffffff; /* define the secondary color as white */
     --tertiary-color: rgb(255, 192, 203); /* define the tertiary color as pink */
   }
+
+  main {
+    color: var(--tertiary-color);
+    background-color: var(--tertiary-color);
+  }
   
   body {
-    margin: 0 auto;
+    margin: 50 auto;
     text-align: center;
     background-color: var(--primary-color);
+    color: var(--tertiary-color);
   }
 
   .container {
     max-width: 800px;
-    margin: 0 auto;
+    margin: 50 auto;
     text-align: center;
     background-color: var(--primary-color);
   }
   
+  .row {
+    background-color: var(--primary-color);
+  }
+
   a {
     display: block;
     margin-top: 20px;
@@ -114,4 +124,18 @@
   
   .hidden-content {
     display: none;
+  }
+
+  body {
+    font-family: Arial, sans-serif;
+  }
+
+  .hero-div {
+    background-color: var(--primary-color);
+    color: var(--primary-color);
+  }
+
+  .nav-color{
+    color: var(--primary-color);
+    background-color: var(--tertiary-color);
   }

@@ -394,62 +394,34 @@ def reviews():
 def create():
     return render_template('create.html')
 
+import requests
 
-
-
-@app.route('/test', methods=["GET"])
-def test():
-
-
-    media_id = request.args.get('media_id')
-
+@app.route('/search_results')
+def search_results():
+    search_term = request.args.get('search')
+    url = 'https://graphql.anilist.co'
     query = '''
-    query ($media_id:Int) {
-    Page {
-        media (id: $media_id, type: MANGA) {
-        id
-        title {
-            romaji
-            english
-        }
-        genres
-        tags {
-            name
-        }
-        averageScore
-        description(asHtml: true)
-        coverImage {
-            large
-        }
-        reviews {
-            id
-            summary
-            score
-            user {
-            name
-            avatar {
-                large
-            }
+        query ($search: String) {
+            Media(search: $search, type: MANGA) {
+                id
+                title {
+                    romaji
+                    english
+                }
+                genres
+                tags {
+                    name
+                }
+                averageScore
+                description(asHtml:true)
+                coverImage {
+                    large
+                }
             }
         }
-        }
-    }
-    }
     '''
+    variables = {'search': search_term}
+    response = requests.post(url, json={'query': query, 'variables': variables})
+    data = response.json()['data']['Media']
+    return render_template('search_results.html', results=data)
 
-    variables = {
-        'media_id': media_id
-    }
-
-
-
-    response = requests.post(url, headers=headers, json={'query': query, 'variables': variables})
-    
-    # If the response status code is not 200, raise an exception
-    if response.status_code != 200:
-        raise Exception('API response: {}'.format(response.status_code))
-    
-    data = response.json()
-    media = data['data']['Page']['media']
-    reviews = media['reviews']
-    return render_template('test.html', media=media)

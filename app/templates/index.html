@@ -15,7 +15,7 @@
     <div class="row">
         <!-- Left 2/3 Column -->
         <div class="col-12 col-lg-8 order-1 order-lg-0">
-            <p>Hello, and welcome to my manga review website, the goal is to be able to search for manga based on genres, tags, name, and then write a review and rating after selecting the manga from a list.</p>
+            <p>Hello, and welcome to my manga review website, the goal is to help someone find a manga to read based on a synopsis, genres, tags, reviews, and similar manga.</p>
             <br>
             <p>Next Idea I want to add is a blog half of the site which has some sort of forum but reddit style response</p>
         </div>
@@ -25,14 +25,11 @@
                 <div class="card mt-3">
                     <div class="card-header">Search</div>
                     <div class="card-body">
-                        <form action="" method="post">
-                            {{ form.csrf_token }}
-                            <div class="input-group">
-                                {{ form.search_term(class="form-control", placeholder="Enter Search Term...")}}
-                                {{ form.submit(class="btn btn-primary") }}
-                            </div>
-                        </form>
-                    </div>
+                        <form action="{{ url_for('search_results') }}" method="GET">
+                            <label for="search">Search:</label>
+                            <input type="text" name="search">
+                            <button type="submit">Submit</button>
+                          </form>                          
                 </div>
             </div>
     </div>
