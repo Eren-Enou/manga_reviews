@@ -1,18 +1,42 @@
 {% extends 'base.html' %}
 
-{% block title %}Reviews{% endblock %}
+{% block title %}{{ media['title']['english'] }}{% endblock %}
 
 {% block header %}
-    <h1>Reviews</h1>
+    <h1>{{ media['title']['romaji'] }}</h1>
 {% endblock %}
 
 {% block content %}
-    {% for manga in media %}
+
+        <a href="/mangapage?media_id={{ media['id'] }}">Go back to further information</a>
+        
         <div>
-            <h2>{{ manga['title']['romaji'] }}</h2>
-            <img src="{{ manga['coverImage']['large'] }}" alt="{{ manga['title']['english'] }}">
-            <p>{{ manga['genres'] }}</p>
-            <p>{{ manga['description'] }}</p>
+            <div class="container">
+                <h1>All Reviews</h1>
+                {% for review in reviews %}
+                <div class="review">
+                    <p>Summary: {{ review.summary }}</p>
+                    <p>By: {{ review.user.name }}</p>
+                  
+                    <button class="spoiler">Show Review</button>
+                    <div class="hidden-content">
+                        <p>{{ review.body }}</p>
+                        <p>Rating: {{ review.rating }}/100</p>
+                    </div>
+                </div>
+                {% endfor %}
+              </div>
+              
+              <script>
+                // Add event listener to each spoiler button to toggle the hidden content
+                const spoilerButtons = document.querySelectorAll('.spoiler');
+                spoilerButtons.forEach(button => {
+                  button.addEventListener('click', () => {
+                    const hiddenContent = button.nextElementSibling;
+                    hiddenContent.classList.toggle('hidden-content');
+                  });
+                });
+              </script>
         </div>
-    {% endfor %}
-{% endblock %}
+        
+{% endblock %}  

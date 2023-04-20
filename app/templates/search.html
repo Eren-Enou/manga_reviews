@@ -8,7 +8,7 @@
 
 {% block content %}
     <div class="container text-center">
-        <h1>Search Manga by Popularity</h1>
+        <h1>Search Manga by Genre</h1>
         <form action="{{ url_for('mangalist') }}" method="GET">
           <label for="page">Page:</label>
           <input type="number" name="page" value="1" min="1"><br>
@@ -22,8 +22,17 @@
     
           <label for="genre">Genre:</label>
           <input type="text" name="genre"><br>
+          
+          <label for="search_type">Search Type:</label>
+          <select name="search_type">
+            <option value="SCORE_DESC">Score</option>
+            <option value="POPULARITY_DESC">Popularity</option>
+            <option value="TRENDING_DESC">Trending</option>
+            <option value="UPDATED_AT_DESC">Updated At</option>
+          </select><br>
     
           <input type="submit" value="Search">
         </form>
     </div>
+    
   {% endblock %}

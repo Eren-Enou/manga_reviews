@@ -1,20 +1,40 @@
 {% extends 'base.html' %}
 
-{% block title %}Manga Page{% endblock %}
+{% block title %}{{ media['title']['english'] }}{% endblock %}
 
 {% block header %}
-    <h1>Manga Page</h1>
+    <h1>{{ media['title']['romaji'] }}</h1>
 {% endblock %}
 
 {% block content %}
         <div>
-            
-            
-            <h3>{{ mediaId }}</h3>
-            <h3>{{ summary }}</h3>
-            <h4>{{ review['score'] }} / 100</h4>
-            <br>
-            <p>{{ review['body'] }}</p>
+            <div>
+                <img src="{{ media['coverImage']['large'] }}" alt="{{ media['title']['english'] }}">
+                <p>{{ media['genres'] }}</p>
+                <p>{{ media['description'] }}</p>
+                <a href="/reviews?media_id={{ media['id'] }}">View Reviews</a>
+            </div>
         </div>
-        
+        <div>
+            <h2>Similar Manga</h2>
+        </div>
+
+        <div class="row manga-page">
+            {% for edge in edges %}
+            <div class="col column manga-pics">
+                <div class="image-container">
+                    <img src="{{ edge.node.mediaRecommendation.coverImage.large }}" alt="{{  edge.node.media.title.english }} cover image">
+                    <div class="overlay">
+                      <a href="/mangapage?media_id={{ edge.node.mediaRecommendation.id }}"><p class="text">{{ edge.node.mediaRecommendation.title.romaji }}</p></a>
+                    </div>
+                  </div>
+                  
+                <img src="" alt="">
+                <br>
+                
+            </div>
+            {% endfor %}
+        </div>
+
+
 {% endblock %}  

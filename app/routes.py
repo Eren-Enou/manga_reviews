@@ -85,15 +85,16 @@ def search():
 @app.route('/mangalist')
 def mangalist():
     # Get the user input from the request object
-    page = request.args.get('page', 1)
-    per_page = request.args.get('per_page', 10)
-    genre = request.args.get('genre', '')
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', default=10, type=int)
+    genre = request.args.get('genre',default='',type=str)
+    search_type = request.args.get('search_type',type=str)
 
     if (genre == ''):
         query = '''
-        query ($page: Int, $perPage: Int) {
+        query ($page: Int, $perPage: Int, $sort:[MediaSort]) {
         Page (page: $page, perPage: $perPage) {
-            media (type: MANGA) {
+            media (type: MANGA, sort:$sort) {
             id
             title {
                 romaji
@@ -104,7 +105,7 @@ def mangalist():
               name
             }
             averageScore
-            description
+            description(asHtml: true)
             coverImage {
                 large
             }
@@ -114,9 +115,9 @@ def mangalist():
         '''
     elif (genre != ''):
         query = '''
-        query ($page: Int, $perPage: Int, $genre: String) {
+        query ($page: Int, $perPage: Int, $genre: String, $sort:[MediaSort]) {
         Page (page: $page, perPage: $perPage) {
-            media (type: MANGA, genre: $genre) {
+            media (type: MANGA, genre: $genre, sort:$sort) {
             id
             title {
                 romaji
@@ -127,7 +128,7 @@ def mangalist():
               name
             }
             averageScore
-            description
+            description(asHtml: true)
             coverImage {
                 large
             }
@@ -143,7 +144,8 @@ def mangalist():
     variables = {
         'page': int(page),
         'perPage': int(per_page),
-        'genre': genre
+        'genre': genre,
+        'sort': [search_type]
     }
 
     
@@ -159,23 +161,26 @@ def mangalist():
     data = response.json()
 
     # Extract media results from response
+    page_data = data['data']['Page']
     media = data['data']['Page']['media']
+
+    next_page = int(page) + 1
 
     # Convert HTML strings to escaped Markup objects
     for m in media:
         m['description'] = Markup(m['description'])
 
     # Render reviews template with media data
-    return render_template('mangalist.html', media=media)
+    return render_template('mangalist.html', media=media, page=page, per_page=per_page, genre=genre, next_page=next_page)
 
 @app.route('/mangapage', methods=["GET"])
-def reviews():
+def mangapage():
 
     media_id = request.args.get('media_id')
 
     query = '''
-        query ($review_id:Int, $media_id:Int, $user_id:Int) {
-            Review(id:$review_id,mediaId:$media_id,userId:$user_id,mediaType:MANGA){
+        query ($media_id:Int) {
+            Review(mediaId:$media_id,mediaType:MANGA){
     			id
   				user{
                     name
@@ -186,22 +191,211 @@ def reviews():
     			mediaId
     			summary
     			score
-    			body
+    			body(asHtml:true)
             }
         }
+    '''
+
+    query2 = '''
+        query ($media_id:Int) {
+        Media(id:$media_id type: MANGA){
+          id
+            title {
+                romaji
+                english
+            }
+            genres
+            tags {
+              name
+            }
+            averageScore
+            description(asHtml: true)
+            coverImage {
+                large
+            }
+        }      
+}
+        '''
+    
+    query3 = '''
+    query GetMediaRecommendations($mediaId: Int!, $sort: [RecommendationSort]) {
+  Media(id: $mediaId) {
+    recommendations(sort: $sort) {
+      pageInfo {
+        total
+        perPage
+        currentPage
+        lastPage
+      }
+      edges {
+        node {
+          rating
+          media {
+            title {
+              romaji
+            }
+            coverImage {
+              large
+            }
+          }
+          mediaRecommendation{
+            id
+            title{
+              romaji
+            }
+            coverImage{
+              large
+            }
+          }
+        }
+      }
+    }
+  }
+}
     '''
 
     variables = {
         'media_id': media_id
     }
-
+    variables2 = {
+        'mediaId': media_id,
+        "sort": "RATING_DESC"
+    }
     response = requests.post(url, headers=headers, json={'query': query, 'variables': variables})
+    response2 = requests.post(url, headers=headers, json={'query': query2, 'variables': variables})
+    response3 = requests.post(url, headers=headers, json={'query': query3, 'variables': variables2})
+    
     
     data = response.json()
+    data2 = response2.json()
+    data3 = response3.json()
     # Extract media and reviews from response
     review = data['data']['Review']
+    media = data2['data']['Media']
+    edges = data3['data']['Media']['recommendations']['edges']
     
-    return render_template('mangapage.html', review=review)
+    # Convert HTML strings to escaped Markup objects
+    media['description'] = Markup(media['description'])
+    
+    return render_template('mangapage.html', review=review, media=media, edges=edges)
+
+@app.route('/reviews', methods=["GET"])
+def reviews():
+
+    media_id = request.args.get('media_id')
+
+    query = '''
+        query ($media_id:Int) {
+            Review(mediaId:$media_id,mediaType:MANGA){
+    			id
+  				user{
+                    name
+                    avatar{
+                        large
+                    }
+                }
+    			mediaId
+    			summary
+    			score
+    			body(asHtml:true)
+            }
+        }
+    '''
+
+    query2 = '''
+        query ($media_id:Int) {
+        Media(id:$media_id type: MANGA){
+          id
+            title {
+                romaji
+                english
+            }
+            genres
+            tags {
+              name
+            }
+            averageScore
+            description(asHtml: true)
+            coverImage {
+                large
+            }
+        }      
+}
+        '''
+    query3 = '''
+    query ($sort: [ReviewSort], $media_id:Int) {
+  Page {
+    reviews(sort: $sort, mediaId:$media_id) {
+      id
+      userId
+      mediaId
+      mediaType
+      summary
+      body(asHtml: true)
+      rating
+      ratingAmount
+      userRating
+      score
+      private
+      siteUrl
+      createdAt
+      updatedAt
+      user {
+        id
+        name
+      }
+      media {
+        id
+        title {
+          romaji
+        }
+      }
+    }
+  }
+}
+'''
+
+
+    variables = {
+        'media_id': media_id,
+        
+    }
+
+    variables2 = {
+        'media_id': media_id,
+        'sort': ["RATING_DESC"]
+    }
+
+
+
+    response2 = requests.post(url, headers=headers, json={'query': query2, 'variables': variables})
+    response3 = requests.post(url, headers=headers, json={'query': query3, 'variables': variables2})
+
+    data2 = response2.json()
+    data3 = response3.json()
+    
+
+
+    # Extract media and reviews from response
+
+    media = data2['data']['Media']
+    reviews = data3['data']['Page']['reviews']
+
+    # Convert HTML strings to escaped Markup objects
+
+    media['description'] = Markup(media['description'])
+    for review in reviews:
+        review['body'] = Markup(review['body'])
+    
+
+    return render_template('reviews.html', media=media, reviews=reviews)
+
+@app.route('/create', methods=["GET","POST"])
+def create():
+    return render_template('create.html')
+
+
+
 
 @app.route('/test', methods=["GET"])
 def test():
@@ -223,7 +417,7 @@ def test():
             name
         }
         averageScore
-        description
+        description(asHtml: true)
         coverImage {
             large
         }
