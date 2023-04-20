@@ -3,7 +3,7 @@
 {% block title %}{{ media['title']['english'] }}{% endblock %}
 
 {% block header %}
-    <h1>{{ media['title']['romaji'] }}</h1>
+    <h1>{{ media['title']['english'] }}</h1>
 {% endblock %}
 
 {% block content %}
@@ -28,9 +28,6 @@
                       <a href="/mangapage?media_id={{ edge.node.mediaRecommendation.id }}"><p class="text">{{ edge.node.mediaRecommendation.title.romaji }}</p></a>
                     </div>
                   </div>
-                  
-                <img src="" alt="">
-                <br>
                 
             </div>
             {% endfor %}

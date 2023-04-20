@@ -3,7 +3,7 @@
 {% block title %}Manga List{% endblock %}
 
 {% block header %}
-    <h1>Manga List</h1>
+    <h1>{{ genre }} manga list</h1>
 {% endblock %}
 
 {% block content %}
@@ -11,21 +11,17 @@
             <div class="row manga-page">
                 {% for manga in media %}
                 <div class="col column manga-pics">
-                    <div class="image-container">
-                        <img src="{{ manga['coverImage']['large'] }}" alt="{{ manga['title']['english'] }}">
+                    <div class="image-container img-container">
+                        <img class="img" src="{{ manga['coverImage']['large'] }}" alt="{{ manga['title']['english'] }}">
                         <div class="overlay">
                           <a href="/mangapage?media_id={{ manga['id'] }}"><p class="text">{{ manga['title']['romaji'] }}</p></a>
                         </div>
-                      </div>
-                      
-                    <img src="" alt="">
-                    <br>
-                    
+                      </div>                    
                 </div>
                 {% endfor %}
             </div>
     
     <div>
-        <a href="/mangalist?page={{next_page}}&per_page={{ per_page }}&genre={{ genre }}">Next Page</a>
+        <a href="/mangalist?page={{next_page}}&per_page={{ per_page }}&genre={{ genre }}&search_type={{ search_type }}">Next Page</a>
     </div>
 {% endblock %}

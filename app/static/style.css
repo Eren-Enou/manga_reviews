@@ -47,6 +47,12 @@
     -webkit-text-stroke: 2px var(--secondary-color);
   }
 
+  h5 {
+    color: var(--secondary-color); /* use the secondary color for headings */
+    font-size: 25px;
+    -webkit-text-stroke: 1px var(--secondary-color);
+  }
+
   p {
     color: var(--secondary-color);
     font-size: 20px;
@@ -92,7 +98,7 @@
     max-width: max-content;
     width: 200px;
     height: 200px;
-    padding-bottom: 350px;
+    padding-bottom: 280px;
     margin: 10px;
   }
   
@@ -106,7 +112,17 @@
     transition: .5s ease;
     background-color: rgba(0,0,0,0.5);
   }
-  
+  img {
+      width: 200px;
+      height: 280px;
+      object-fit: cover
+  }
+  .img-container {
+    width: 200px;
+    height: 280px;
+    overflow: hidden;
+  }
+
   .image-container:hover .overlay {
     opacity: 1;
   }
@@ -139,3 +155,4 @@
     color: var(--primary-color);
     background-color: var(--tertiary-color);
   }
+

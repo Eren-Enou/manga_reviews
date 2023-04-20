@@ -87,14 +87,15 @@ def mangalist():
     # Get the user input from the request object
     page = request.args.get('page', 1, type=int)
     per_page = request.args.get('per_page', default=10, type=int)
-    genre = request.args.get('genre',default='',type=str)
-    search_type = request.args.get('search_type',type=str)
+    genre = request.args.get('genre',default='fantasy',type=str)
+    search_type = request.args.get('search_type',default='SCORE_DESC',type=str)
 
     if (genre == ''):
+        genre = 'fantasy'
         query = '''
-        query ($page: Int, $perPage: Int, $sort:[MediaSort]) {
+        query ($page: Int, $perPage: Int, $genre: String,$sort:[MediaSort]) {
         Page (page: $page, perPage: $perPage) {
-            media (type: MANGA, sort:$sort) {
+            media (type: MANGA, genre: $genre, sort:$sort) {
             id
             title {
                 romaji
@@ -171,7 +172,7 @@ def mangalist():
         m['description'] = Markup(m['description'])
 
     # Render reviews template with media data
-    return render_template('mangalist.html', media=media, page=page, per_page=per_page, genre=genre, next_page=next_page)
+    return render_template('mangalist.html', media=media, page=page, per_page=per_page, genre=genre, next_page=next_page, search_type=search_type)
 
 @app.route('/mangapage', methods=["GET"])
 def mangapage():
@@ -407,12 +408,15 @@ def search_results():
       total
       perPage
     }
-    media(search: $search, type: MANGA, sort: FAVOURITES_DESC) {
+    media(isAdult:false ,search: $search, type: MANGA, sort: FAVOURITES_DESC) {
       id
       title {
         romaji
         english
         native
+      }
+      coverImage {
+        large
       }
       type
       genres

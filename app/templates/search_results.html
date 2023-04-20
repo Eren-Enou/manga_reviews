@@ -1,11 +1,24 @@
 {% extends 'base.html' %}
 
-{% block content %}
+{% block header %}
     <h1>Search Results</h1>
+{% endblock %}
+{% block content %}
     {% if results %}
         <ul>
             {% for result in results %}
-                <li>{{ result.title.romaji }} - {{ result.averageScore }}/100</li>
+            <div class="col column manga-pics">
+                <div class="image-container">
+                    <img src="{{ result['coverImage']['large'] }}" alt="{{ result['title']['english'] }}">
+                    <div class="overlay">
+                      <a href="/mangapage?media_id={{ result['id'] }}"><p class="text">{{ result['title']['romaji'] }}</p></a>
+                    </div>
+                  </div>
+                  
+                <img src="" alt="">
+                <br>
+                
+            </div>
             {% endfor %}
         </ul>
     {% else %}
