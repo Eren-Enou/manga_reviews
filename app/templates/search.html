@@ -12,25 +12,28 @@
         <form action="{{ url_for('mangalist') }}" method="GET">
           <label for="page">Page:</label>
           <input type="number" name="page" value="1" min="1"><br>
-    
+          <br>
           <label for="per_page">Results per page:</label>
           <select name="per_page">
             <option value="10">10</option>
             <option value="25">25</option>
             <option value="50">50</option>
-          </select><br>
+          </select>
+          <br>
+          <br>
     
           <label for="genre">Genre:</label>
           <input type="text" name="genre"><br>
-          
+          <br>
           <label for="search_type">Search Type:</label>
           <select name="search_type">
             <option value="SCORE_DESC">Score</option>
             <option value="POPULARITY_DESC">Popularity</option>
             <option value="TRENDING_DESC">Trending</option>
             <option value="UPDATED_AT_DESC">Updated At</option>
-          </select><br>
-    
+          </select>
+          <br>
+          <br>
           <input type="submit" value="Search">
         </form>
     </div>

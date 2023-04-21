@@ -1,8 +1,8 @@
 from app import app, db
 from flask import Response, render_template, redirect, request, url_for, flash, Markup
 
-from app.forms import SignUpForm, LoginForm, PostForm, SearchForm
-from app.models import User, Post
+from app.forms import SignUpForm, LoginForm, SearchForm
+from app.models import User
 from flask_login import login_user, logout_user, login_required, current_user
 from datetime import datetime
 
