@@ -21,15 +21,19 @@
 
         <div class="row manga-page">
             {% for edge in edges %}
+            {% set mediaRecommendation = edge.node.mediaRecommendation %}
+            {% if mediaRecommendation.coverImage %}
+             
             <div class="col column manga-pics">
                 <div class="image-container">
-                    <img src="{{ edge.node.mediaRecommendation.coverImage.large }}" alt="{{  edge.node.media.title.english }} cover image">
+                    <img src="{{ mediaRecommendation.coverImage.large }}" alt="{{  edge.node.media.title.english }} cover image">
                     <div class="overlay">
                       <a href="/mangapage?media_id={{ edge.node.mediaRecommendation.id }}"><p class="text">{{ edge.node.mediaRecommendation.title.romaji }}</p></a>
                     </div>
                   </div>
                 
             </div>
+            {% endif %}
             {% endfor %}
         </div>
 

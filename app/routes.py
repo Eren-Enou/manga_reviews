@@ -1,9 +1,10 @@
 from app import app, db
 from flask import Response, render_template, redirect, request, url_for, flash, Markup
-# from fake_data import posts
+
 from app.forms import SignUpForm, LoginForm, PostForm, SearchForm
 from app.models import User, Post
 from flask_login import login_user, logout_user, login_required, current_user
+from datetime import datetime
 
 import requests
 url = "https://anilist-graphql.p.rapidapi.com/"
@@ -12,15 +13,15 @@ headers = {
     "X-RapidAPI-Key": "87927f4031msh473a290f717da11p189432jsn9b635492ee37",
     "X-RapidAPI-Host": "anilist-graphql.p.rapidapi.com"
 }
+current_year = datetime.now().year
 
 @app.route('/', methods=["GET", "POST"])
 def index():
+    
     form = SearchForm()
     if form.validate_on_submit():
         search_term = form.search_term.data
-        # posts = Post.query.filter(Post.title.ilike(f"%{search_term}%")).all()
-        # posts = db.session.execute(db.select(Post).where((Post.title.ilike(f"%{search_term}%")) | (Post.body.ilike(f"%{search_term}%")))).scalars().all()
-    return render_template('index.html', form=form)
+    return render_template('index.html', form=form, current_year=current_year)
 
 
 @app.route('/signup', methods=["GET", "POST"])
@@ -47,7 +48,7 @@ def signup():
         new_user = User(first_name=first_name, last_name=last_name, email=email, username=username, password=password)
         flash(f"Thank you {new_user.username} for signing up!", "success")
         return redirect(url_for('index'))
-    return render_template('signup.html', form=form)
+    return render_template('signup.html', form=form, current_year=current_year)
 
 
 @app.route('/login', methods=["GET", "POST"])
@@ -69,7 +70,7 @@ def login():
             flash('Invalid username and/or password. Please try again', 'danger')
             return redirect(url_for('login'))
 
-    return render_template('login.html', form=form)
+    return render_template('login.html', form=form, current_year=current_year)
 
 
 @app.route('/logout')
@@ -172,7 +173,7 @@ def mangalist():
         m['description'] = Markup(m['description'])
 
     # Render reviews template with media data
-    return render_template('mangalist.html', media=media, page=page, per_page=per_page, genre=genre, next_page=next_page, search_type=search_type)
+    return render_template('mangalist.html', media=media, page=page, per_page=per_page, genre=genre, next_page=next_page, search_type=search_type, current_year=current_year)
 
 @app.route('/mangapage', methods=["GET"])
 def mangapage():
@@ -278,7 +279,7 @@ def mangapage():
     # Convert HTML strings to escaped Markup objects
     media['description'] = Markup(media['description'])
     
-    return render_template('mangapage.html', review=review, media=media, edges=edges)
+    return render_template('mangapage.html', review=review, media=media, edges=edges, current_year=current_year)
 
 @app.route('/reviews', methods=["GET"])
 def reviews():
@@ -389,13 +390,12 @@ def reviews():
         review['body'] = Markup(review['body'])
     
 
-    return render_template('reviews.html', media=media, reviews=reviews)
+    return render_template('reviews.html', media=media, reviews=reviews, current_year=current_year)
 
 @app.route('/create', methods=["GET","POST"])
 def create():
     return render_template('create.html')
 
-import requests
 
 @app.route('/search_results')
 def search_results():
@@ -431,5 +431,5 @@ def search_results():
         }
     response = requests.post(url, json={'query': query, 'variables': variables})
     data = response.json()['data']['Page']['media']
-    return render_template('search_results.html', results=data)
+    return render_template('search_results.html', results=data, current_year=current_year)
 
