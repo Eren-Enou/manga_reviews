@@ -70,6 +70,22 @@ def get_a_user_by_id(user_id):
     return db.session.get(User, user_id)
 
 
+class Manga(db.Model):
+    __tablename__ = 'manga'
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(255), nullable=False)
+    genres = db.Column(db.String(255), nullable=False)
+    description = db.Column(db.String(1000), nullable=False)
+
+    def __init__(self, title, genres, description):
+        self.title = title
+        self.genres = genres
+        self.description = description
+
+    def __repr__(self):
+        return f'<Manga {self.title}>'
+
+
 # class Like(db.Model):
 #     id = db.Column(db.Integer, primary_key=True)
 #     title = db.Column(db.String(50), nullable=False)

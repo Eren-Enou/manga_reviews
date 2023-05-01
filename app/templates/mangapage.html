@@ -15,6 +15,21 @@
                 <a href="/reviews?media_id={{ media['id'] }}">View Reviews</a>
             </div>
         </div>
+
+        <form action="{{ url_for('add_manga') }}" method="POST">
+            <label for="title">Title:</label>
+            <input type="text" name="title" placeholder="Test">
+        
+            <label for="genres">Genres:</label>
+            <input type="text" name="genres">
+        
+            <label for="description">Description:</label>
+            <input type="text" name="description">
+        
+            <button type="submit">Add Manga</button>
+        </form>
+        
+
         <div>
             <h2>Similar Manga</h2>
         </div>

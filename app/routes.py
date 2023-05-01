@@ -2,7 +2,7 @@ from app import app, db
 from flask import Response, render_template, redirect, request, url_for, flash, Markup
 
 from app.forms import SignUpForm, LoginForm, SearchForm
-from app.models import User
+from app.models import User, Manga
 from flask_login import login_user, logout_user, login_required, current_user
 from datetime import datetime
 
@@ -433,3 +433,14 @@ def search_results():
     data = response.json()['data']['Page']['media']
     return render_template('search_results.html', results=data, current_year=current_year)
 
+@app.route('/add_manga', methods=['POST'])
+def add_manga():
+    title = request.form['title']
+    genres = request.form['genres']
+    description = request.form['description']
+
+    new_manga = Manga(title=title, genres=genres, description=description)
+    db.session.add(new_manga)
+    db.session.commit()
+
+    return "Manga added to database."
